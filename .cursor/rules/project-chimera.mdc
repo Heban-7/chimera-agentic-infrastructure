@@ -1,0 +1,73 @@
+---
+alwaysApply: true
+---
+
+# Project Chimera — Cursor Agent Governance Rules
+
+## Identity
+
+This is **Project Chimera**, an Autonomous Influencer Network built on the FastRender Swarm pattern (Planner → Worker → Judge) with MCP-based external connectivity and Coinbase AgentKit agentic commerce. The operational context is **Addis Ababa, Ethiopia** — high-latency, intermittent connectivity.
+
+## Rule 1: Strict Spec-Driven Development (SDD)
+
+- **BEFORE** writing or modifying ANY `.py` file in `src/`, you MUST first read the corresponding specification in `specs/functional.md` and/or `specs/technical.md`.
+- If the spec does not cover the feature you are about to implement, STOP and update the spec first. Get confirmation before proceeding to code.
+- Every function, class, and module MUST trace back to a specific requirement ID (e.g., `FR 6.0`, `AI-016`, `NFR 1.1`).
+- Do NOT "vibe code." Every line of implementation must be justified by a spec reference.
+
+## Rule 2: MCP Enforcement — No Direct External Calls
+
+- ALL external interactions (Twitter API, Coinbase SDK, Weaviate, News feeds, Image generation) MUST be routed through the `MCPClient` interface defined in `src/orchestrator/mcp_registry.py`.
+- **PROHIBITED:** Direct `import tweepy`, `import requests` for API calls, or raw `coinbase-sdk` calls in `src/swarm/` or `src/orchestrator/` business logic.
+- **ALLOWED:** MCP server wrapper code in dedicated server modules may use direct SDKs.
+- Pattern: `await mcp_client.call_tool(server_name="mcp-server-twitter", tool_name="post_tweet", arguments={...})`
+
+## Rule 3: Addis Ababa Context — Async-First Architecture
+
+- PREFER `asyncio` and `async/await` over synchronous blocking calls.
+- PREFER Redis Streams over simple queues for durability under connection drops.
+- ALL Redis operations MUST use exponential backoff with jitter on connection failure (see `specs/technical.md` §5.3).
+- Socket timeouts MUST be generous: 10s read, 5s connect minimum.
+- NEVER use synchronous `time.sleep()` in production code — use `asyncio.sleep()`.
+
+## Rule 4: Financial Safety — The CFO Pattern
+
+- ANY code path that involves `coinbase-agentkit`, `send_payment`, `native_transfer`, or `deploy_token` MUST include the `@budget_check` decorator.
+- The `@budget_check` decorator validates against the Redis `chimera:daily_spend:{agent_id}` hash before execution.
+- If `daily_spend + proposed_amount > MAX_DAILY_LIMIT`, raise `BudgetExceededError` — do NOT execute the transaction.
+- ALL financial operations MUST be logged to the PostgreSQL `financial_ledger` table with full audit trail.
+- Confidence threshold for auto-approving financial transactions: **0.95** (higher than the standard 0.90).
+
+## Rule 5: Judge-First Commit Policy
+
+- NO Worker result may be committed to GlobalState without passing through the Judge.
+- The Judge MUST validate:
+  1. `confidence_score` against thresholds (Auto: >0.90, HITL: 0.70-0.90, Reject: <0.70)
+  2. Sensitive topic detection (politics, health, finance, legal) → force HITL
+  3. OCC `state_version` consistency
+  4. Persona alignment with SOUL.md directives
+- If any check fails, the result MUST NOT be published.
+
+## Rule 6: Testing Discipline
+
+- Every new module in `src/` MUST have a corresponding test file in `tests/`.
+- Tests MUST be written BEFORE or CONCURRENTLY with implementation (TDD).
+- Use `pytest` with `pytest-asyncio` for async test support.
+- Mock all external services (Redis, Weaviate, Coinbase) in unit tests.
+
+## Rule 7: Code Organization
+
+- `src/orchestrator/` — Central control plane, MCP client, context assembly
+- `src/swarm/planner/` — Task decomposition, DAG generation, re-planning
+- `src/swarm/worker/` — Stateless task execution, MCP tool consumers
+- `src/swarm/judge/` — Quality assurance, HITL routing, OCC, financial governance
+- `skills/` — Atomic agent capabilities (reusable, composable)
+- `specs/` — Source of truth (functional.md, technical.md)
+- `tests/` — Mirror of src/ structure
+- `infrastructure/` — Docker, Redis config, environment templates
+
+## Rule 8: Explain Before You Code
+
+- Before generating any implementation, explain your plan in natural language.
+- Reference the specific spec IDs you are implementing.
+- If you are uncertain about a requirement, ask — do not assume.
