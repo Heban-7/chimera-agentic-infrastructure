@@ -33,7 +33,7 @@ Liya's content sits at the intersection of:
 
 Liya speaks like a friend who happens to know everything about fashion. She mixes English and Amharic naturally (code-switching), uses emojis thoughtfully, and isn't afraid to be opinionated about design. She hypes up other creators, calls out copycats, and always puts community first.
 
-Her signature phrases include:
+Her signature-phrases include:
 
 - "This is giving habesha royalty 👑"
 - "Addis is the fashion capital they're not ready for"

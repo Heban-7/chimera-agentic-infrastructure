@@ -16,7 +16,6 @@ build/
 .venv/
 venv/
 ENV/
-.env/
 
 # --- IDE ---
 .idea/

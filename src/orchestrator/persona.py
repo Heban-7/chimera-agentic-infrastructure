@@ -5,6 +5,7 @@ Handles parsing of SOUL.md files that define agent personas, and assembling
 the context window for LLM calls by combining persona, memory, and task context.
 
 Spec References:
+    - specs/functional.md: AI-001 (Persona Instantiation), AI-002 (Hierarchical Memory), AI-003 (Dynamic Persona Evolution), AI-013 (Honesty Directive)
     - specs/functional.md: AI-001 (Persona Instantiation), AI-002 (Hierarchical Memory),
       AI-003 (Dynamic Persona Evolution), AI-013 (Honesty Directive)
     - SRS: FR 1.0 (SOUL.md), FR 1.1 (Memory Retrieval), FR 1.2 (Persona Evolution)
@@ -204,3 +205,4 @@ def assemble_system_prompt(
     sections.append(f"- Communicate primarily in: {', '.join(persona.languages)}.")
 
     return "\n".join(sections)
+

@@ -23,8 +23,6 @@ import sys
 from pathlib import Path
 from unittest.mock import AsyncMock
 
-from dotenv import load_dotenv
-
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -41,6 +39,7 @@ from src.swarm.judge.governor import (
 )
 
 # Load environment variables
+from dotenv import load_dotenv
 load_dotenv()
 
 # Configure logging

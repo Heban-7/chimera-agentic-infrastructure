@@ -14,6 +14,50 @@ This repository is **not** the influencers themselves — it's the **factory flo
 
 ---
 
+## Repository Structure
+
+```
+.
+├── .cursor/rules/              # AI coding assistant governance
+│   └── project-chimera.mdc    # 8 rules: SDD, MCP enforcement, financial safety
+├── .github/workflows/
+│   └── main.yml               # CI/CD: lint → test → spec-check → docker
+├── specs/                     # Source of Truth (read these first!)
+│   ├── _meta.md               # Vision & constraints
+│   ├── functional.md          # 19 user stories + OpenClaw protocols
+│   └── technical.md           # JSON schemas, database ERD, Redis config
+├── src/
+│   ├── orchestrator/
+│   │   ├── llm_client.py      # OpenRouter LLM integration
+│   │   ├── mcp_registry.py    # MCP tool definitions (Twitter, Coinbase)
+│   │   ├── persona.py         # SOUL.md parser + context assembly
+│   │   └── schemas.py         # Task/Result Pydantic models
+│   └── swarm/
+│       ├── planner/planner.py # Goal → Task DAG decomposition (LLM)
+│       ├── worker/worker.py   # Task execution + content generation (LLM)
+│       └── judge/governor.py  # Confidence routing, budget checks, brand vision
+├── skills/                    # Agent capability contracts
+│   └── README.md              # 3 skill interfaces defined
+├── tests/                     # 111 tests (TDD)
+│   ├── test_governor.py       # 38 tests — confidence, budget, OCC, brand
+│   ├── test_mcp_registry.py   # 32 tests — tool contracts, governance flags
+│   ├── test_schemas.py        # 20 tests — Task/Result validation
+│   └── test_skills_interface.py # 21 tests — skill I/O contracts
+├── examples/
+│   └── soul_example.md        # Sample agent persona (Liya Abebe)
+├── infrastructure/
+│   ├── .env.example           # Required environment variables
+│   └── docker-compose.yml     # Redis + PostgreSQL + Weaviate (local dev)
+├── research/
+│   └── architecture_strategy.md # Architecture rationale & diagrams
+├── main.py                    # End-to-end pipeline demo
+├── Dockerfile                 # Multi-stage build (Python 3.12 + uv)
+├── Makefile                   # make setup | test-swarm | spec-check
+└── pyproject.toml             # Python project configuration
+```
+
+---
+
 ## How Does It Work? (The FastRender Swarm)
 
 The system uses a pattern called the **FastRender Swarm**, inspired by how a real creative agency works. Every task goes through three specialized roles:
@@ -148,50 +192,6 @@ Content is automatically scanned for sensitive keywords (politics, health advice
 ### Optimistic Concurrency Control (OCC)
 
 If the campaign state changes while a Worker is executing a task (e.g., the campaign was paused), the Judge detects the stale result via version checking and rejects it.
-
----
-
-## Repository Structure
-
-```
-.
-├── .cursor/rules/              # AI coding assistant governance
-│   └── project-chimera.mdc    # 8 rules: SDD, MCP enforcement, financial safety
-├── .github/workflows/
-│   └── main.yml               # CI/CD: lint → test → spec-check → docker
-├── specs/                     # Source of Truth (read these first!)
-│   ├── _meta.md               # Vision & constraints
-│   ├── functional.md          # 19 user stories + OpenClaw protocols
-│   └── technical.md           # JSON schemas, database ERD, Redis config
-├── src/
-│   ├── orchestrator/
-│   │   ├── llm_client.py      # OpenRouter LLM integration
-│   │   ├── mcp_registry.py    # MCP tool definitions (Twitter, Coinbase)
-│   │   ├── persona.py         # SOUL.md parser + context assembly
-│   │   └── schemas.py         # Task/Result Pydantic models
-│   └── swarm/
-│       ├── planner/planner.py # Goal → Task DAG decomposition (LLM)
-│       ├── worker/worker.py   # Task execution + content generation (LLM)
-│       └── judge/governor.py  # Confidence routing, budget checks, brand vision
-├── skills/                    # Agent capability contracts
-│   └── README.md              # 3 skill interfaces defined
-├── tests/                     # 111 tests (TDD)
-│   ├── test_governor.py       # 38 tests — confidence, budget, OCC, brand
-│   ├── test_mcp_registry.py   # 32 tests — tool contracts, governance flags
-│   ├── test_schemas.py        # 20 tests — Task/Result validation
-│   └── test_skills_interface.py # 21 tests — skill I/O contracts
-├── examples/
-│   └── soul_example.md        # Sample agent persona (Liya Abebe)
-├── infrastructure/
-│   ├── .env.example           # Required environment variables
-│   └── docker-compose.yml     # Redis + PostgreSQL + Weaviate (local dev)
-├── research/
-│   └── architecture_strategy.md # Architecture rationale & diagrams
-├── main.py                    # End-to-end pipeline demo
-├── Dockerfile                 # Multi-stage build (Python 3.12 + uv)
-├── Makefile                   # make setup | test-swarm | spec-check
-└── pyproject.toml             # Python project configuration
-```
 
 ---
 
