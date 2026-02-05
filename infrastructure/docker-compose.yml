@@ -1,0 +1,106 @@
+# =============================================================================
+# Project Chimera — Docker Compose (Local Development)
+# Ref: specs/technical.md §3 (PostgreSQL), §4 (Weaviate), §5 (Redis)
+# =============================================================================
+
+version: "3.9"
+
+services:
+  # ---------------------------------------------------------------------------
+  # Redis — Episodic Memory & Task Queues
+  # Spec Ref: specs/technical.md §5 (Redis Configuration)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: chimera-redis
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL — Structured / Financial Data
+  # Spec Ref: specs/technical.md §3 (ERD & Financial Ledger)
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: chimera-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: chimera_db
+      POSTGRES_USER: chimera
+      POSTGRES_PASSWORD: chimera_dev_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chimera -d chimera_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Weaviate — Semantic Memory (Vector DB)
+  # Spec Ref: specs/technical.md §4 (Weaviate Class Definitions)
+  # ---------------------------------------------------------------------------
+  weaviate:
+    image: semitechnologies/weaviate:1.28.2
+    container_name: chimera-weaviate
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "text2vec-openai"
+      ENABLE_MODULES: "text2vec-openai,multi2vec-clip,generative-openai"
+      CLUSTER_HOSTNAME: "chimera-weaviate"
+    volumes:
+      - weaviate-data:/var/lib/weaviate
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/v1/.well-known/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Chimera Application (for testing)
+  # ---------------------------------------------------------------------------
+  chimera-app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: chimera-app
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DATABASE_URL: postgresql+asyncpg://chimera:chimera_dev_password@postgres:5432/chimera_db
+      WEAVIATE_URL: http://weaviate:8080
+      MAX_DAILY_LIMIT_USDC: "50.0"
+      CONFIDENCE_THRESHOLD: "0.90"
+      HITL_THRESHOLD: "0.70"
+    command: python -m pytest tests/ -v --tb=short
+
+volumes:
+  redis-data:
+  postgres-data:
+  weaviate-data:

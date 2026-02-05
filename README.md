@@ -1,4 +1,4 @@
-# Project Chimera — Agentic Infrastructure
+# Project Chimera: Agentic Infrastructure
 
 > Spec-Driven Infrastructure for Autonomous Influencer Agents
 
@@ -12,29 +12,38 @@
 
 ```
 .
-├── .cursor/rules/           # Cursor agent governance rules
-│   ├── agent.mdc            # Base agent rules
-│   └── project-chimera.mdc  # SDD, MCP enforcement, financial safety
-├── specs/                   # Source of Truth — Functional & Technical Specs
-│   ├── _meta.md             # Vision, constraints, spec index
-│   ├── functional.md        # User stories, OpenClaw protocols
-│   └── technical.md         # JSON schemas, ERD, Redis config, API contracts
+├── .cursor/rules/                  # Cursor agent governance rules
+│   ├── agent.mdc                   # Base agent rules
+│   └── project-chimera.mdc         # SDD, MCP enforcement, financial safety
+├── .github/workflows/
+│   └── main.yml                    # CI/CD pipeline
+├── specs/                          # Source of Truth — Functional & Technical Specs
+│   ├── _meta.md                    # Vision, constraints, spec index
+│   ├── functional.md               # User stories, OpenClaw protocols
+│   └── technical.md                # JSON schemas, ERD, Redis config, API contracts
 ├── src/
-│   ├── orchestrator/        # Central Control Plane (MCP Host)
-│   │   └── mcp_registry.py  # MCP tool interfaces (Twitter, Coinbase)
-│   └── swarm/               # The FastRender Swarm
-│       ├── planner/         # Strategic decomposition (Gemini 3 Pro)
-│       ├── worker/          # Stateless task execution (Gemini 3 Flash)
-│       └── judge/           # Safety, brand, financial governor
-│           └── governor.py  # Confidence scoring, CFO pattern, brand vision
-├── skills/                  # Atomic agent capabilities
-├── tests/                   # TDD: Failing tests for API contracts
-├── infrastructure/          # Docker, Redis, environment configs
-│   └── .env.example         # Required environment variables
-├── research/                # Architecture strategy & domain research
-├── Dockerfile               # Multi-stage build (python:3.12-slim + uv)
-├── Makefile                 # make setup | make test-swarm | make spec-check
-└── pyproject.toml           # Python project config (uv/hatch)
+│   ├── orchestrator/               # Central Control Plane (MCP Host)
+│   │   └── mcp_registry.py         # MCP tool interfaces (Twitter, Coinbase)
+│   └── swarm/                      # The FastRender Swarm
+│       ├── planner/planner.py      # PlannerService scaffold
+│       ├── worker/worker.py        # WorkerService scaffold
+│       └── judge/governor.py       # Full Governor with CFO pattern
+├── skills/
+│   └── README.md                   # 3 skill contracts
+├── tests/                          # TDD: Failing tests for API contracts
+│   ├── test_governor.py            # 38 tests
+│   ├── test_mcp_registry.py        # 32 tests
+│   ├── test_schemas.py             # 20 tests
+│   └── test_skills_interface.py    # 21 tests
+├── infrastructure/                 # Docker, Redis, environment configs
+│   ├── .env.example                # Required environment variables
+│   └── docker-compose.yml
+├── research/                       # Architecture strategy & domain research
+├── Dockerfile                      # Multi-stage build (python:3.12-slim + uv)
+├── Makefile                        # make setup | make test-swarm | make spec-check
+├── pyproject.toml                  # Python project config (uv/hatch)
+├── README.md
+└── .gitignore
 ```
 
 ## Quick Start

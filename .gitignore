@@ -1,2 +1,60 @@
+# =============================================================================
+# Project Chimera — .gitignore
+# =============================================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# --- Virtual Environment ---
+.venv/
+venv/
+ENV/
+
+# --- IDE ---
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- Testing ---
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# --- Build / Packaging ---
+*.whl
+*.tar.gz
+
+# --- Environment & Secrets (NEVER commit) ---
+.env
+.env.local
+.env.production
+credentials.json
+*.pem
+*.key
+
+# --- Docker ---
+docker-compose.override.yml
+*.log
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Ruff ---
+.ruff_cache/
+
+# --- Project-specific (large docs not needed in repo) ---
 ProjectChimeraSRSDocumentAutonomousInfluencerNetwork.md
 ProjectChimeraTheAgenticInfrastructureChallenge.md
+"Project Chimera SRS Document_ Autonomous Influencer Network.docx"
+Project_Chimera_3Day_Challenge.md.docx
