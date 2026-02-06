@@ -97,22 +97,56 @@ def parse_soul_md(file_path: str | Path) -> AgentPersona:
     backstory_text = "---".join(parts[2:]).strip()
 
     # Parse simple YAML-like frontmatter (no external YAML dependency)
+    # Handles both single-line and multi-line list values:
+    #   voice_traits: [Witty, Warm, Gen-Z]       (single-line)
+    #   directives:                                (multi-line)
+    #     [Never discuss politics,
+    #      Always credit creators]
     frontmatter: dict[str, Any] = {}
-    for line in frontmatter_text.split("\n"):
-        line = line.strip()
+    lines = frontmatter_text.split("\n")
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        i += 1
+
         if not line or line.startswith("#"):
             continue
-        if ":" in line:
-            key, value = line.split(":", 1)
-            key = key.strip()
-            value = value.strip()
+        if ":" not in line:
+            continue
 
-            # Parse list values: [item1, item2, item3]
-            if value.startswith("[") and value.endswith("]"):
-                items = value[1:-1].split(",")
-                frontmatter[key] = [item.strip().strip("'\"") for item in items]
+        key, value = line.split(":", 1)
+        key = key.strip()
+        value = value.strip()
+
+        # Case 1: Single-line list — [item1, item2, item3]
+        if value.startswith("[") and value.endswith("]"):
+            items = value[1:-1].split(",")
+            frontmatter[key] = [item.strip().strip("'\"") for item in items if item.strip()]
+
+        # Case 2: Multi-line list — value is empty or starts with [ but doesn't close
+        elif value == "" or (value.startswith("[") and "]" not in value):
+            # Collect subsequent lines until we find the closing ]
+            collected = value
+            while i < len(lines):
+                next_line = lines[i].strip()
+                i += 1
+                collected += " " + next_line
+                if "]" in next_line:
+                    break
+
+            # Now parse the collected value as a list
+            collected = collected.strip()
+            if collected.startswith("[") and collected.endswith("]"):
+                items = collected[1:-1].split(",")
+                frontmatter[key] = [item.strip().strip("'\"") for item in items if item.strip()]
+            elif collected:
+                frontmatter[key] = collected.strip("'\"")
             else:
-                frontmatter[key] = value.strip("'\"")
+                frontmatter[key] = ""
+
+        # Case 3: Simple scalar value
+        else:
+            frontmatter[key] = value.strip("'\"")
 
     persona = AgentPersona(
         name=frontmatter.get("name", "Unknown Agent"),

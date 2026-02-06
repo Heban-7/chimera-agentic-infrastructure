@@ -23,6 +23,11 @@ import sys
 from pathlib import Path
 from unittest.mock import AsyncMock
 
+# Force UTF-8 output on Windows consoles to avoid UnicodeEncodeError
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
 
