@@ -216,7 +216,7 @@ pip install pydantic httpx python-dotenv pytest pytest-asyncio
 Create a `.env` file in the project root (it's gitignored):
 
 ```env
-LLM_API_BASE_URL=https://openrouter.ai/api/v1
+LLM_API_BASE_URL=openrouter-url
 LLM_API_KEY=your-openrouter-api-key-here
 LLM_MODEL=arcee-ai/trinity-large-preview:free
 ```
